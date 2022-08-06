@@ -1,7 +1,9 @@
 package com.example.topik08_coba;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -89,8 +91,26 @@ public class InternalActivity extends AppCompatActivity implements View.OnClickL
 
     void hapusFile(){
         File file = new File(getFilesDir(), FILENAME);
-        if(file.exists())
+        if(file.exists()){
+            new AlertDialog.Builder(InternalActivity.this)
+                    .setTitle("Hapus File")
+                    .setMessage("Apakah Anda yakin hapus file?")
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.cancel();
+                        }
+                    })
+                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            dialogInterface.dismiss();
+                        }
+                    }).show();
             file.delete();
+            txtBaca.setText("");
+        }
     }
 
     @Override
