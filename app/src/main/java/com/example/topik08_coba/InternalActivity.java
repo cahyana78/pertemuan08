@@ -5,9 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
+
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -19,8 +23,9 @@ import java.nio.charset.StandardCharsets;
 
 public class InternalActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String FILENAME = "namafile.txt";
-    Button buat, baca, ubah, hapus;
+    Button buat, baca, ubah, hapus, eksternal;
     TextView txtBaca;
+    EditText inputEditText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,16 +37,46 @@ public class InternalActivity extends AppCompatActivity implements View.OnClickL
         ubah = findViewById(R.id.btnUbah);
         hapus = findViewById(R.id.btnHps);
         txtBaca = findViewById(R.id.txtBaca);
+        inputEditText = findViewById(R.id.inputText);
+
+        eksternal = findViewById(R.id.btnExt);
 
         buat.setOnClickListener(this);
         baca.setOnClickListener(this);
         ubah.setOnClickListener(this);
+        eksternal.setOnClickListener(this);
         hapus.setOnClickListener(this);
+
+
     }
 
-    void buatFile(){
-        String isiFile = "Coba isi data pada file txt";
+    void buatFile(String isiFile){
+        //String isiFile = "Coba isi data pada file txt";
+
         File file = new File(getFilesDir(), FILENAME);
+
+        FileOutputStream outputStream = null;
+        try{
+            file.createNewFile();
+            outputStream = new FileOutputStream(file, true);
+            outputStream.write(isiFile.getBytes());
+            outputStream.flush();
+            outputStream.close();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    void buatFileEksternal(){
+        String isiFile = "Coba isi data pada file txt eksternal";
+        String state = Environment.getExternalStorageState();
+
+        if(!Environment.MEDIA_MOUNTED.equals(state))
+            return;
+
+        //pembuatan file media eksternal
+        File file = new File(Environment.getExternalStoragePublicDirectory
+                (Environment.DIRECTORY_DOCUMENTS), FILENAME);
 
         FileOutputStream outputStream = null;
         try{
@@ -102,10 +137,11 @@ public class InternalActivity extends AppCompatActivity implements View.OnClickL
                             dialogInterface.cancel();
                         }
                     })
-                    .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    .setNegativeButton(R.string.cancel, new
+                            DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            dialogInterface.dismiss();
+                            dialogInterface.cancel();
                         }
                     }).show();
             file.delete();
@@ -119,9 +155,11 @@ public class InternalActivity extends AppCompatActivity implements View.OnClickL
     }
 
     public void jalankanPerintah(int id){
+        String isiFile = inputEditText.getText().toString();
+
         switch (id){
             case R.id.btnBuat:
-                buatFile();
+                buatFile(isiFile);
                 break;
             case R.id.btnBaca:
                 bacaFile();
@@ -131,6 +169,9 @@ public class InternalActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.btnHps:
                 hapusFile();
+                break;
+            case R.id.btnExt:
+                buatFileEksternal();
                 break;
         }
     }
